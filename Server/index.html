@@ -1,0 +1,317 @@
+<!doctype html>
+<html lang="it">
+<head>
+    <link rel="shortcut icon" href="/images/favicon.ico" />
+
+<meta charset="utf-8">
+<title>Pic & Berry</title>
+
+    
+<!-- per grafici jsapi-->
+<!--script type="text/javascript" src="https://www.google.com/jsapi"></script-->
+
+<script src="https://ajax.googleapis.com/ajax/libs/jquery/1.11.3/jquery.min.js"></script>
+<link rel="stylesheet" href="https://ajax.googleapis.com/ajax/libs/jqueryui/1.11.2/themes/smoothness/jquery-ui.css" />
+<script src="https://ajax.googleapis.com/ajax/libs/jqueryui/1.11.3/jquery-ui.min.js"></script>
+<script type="text/javascript" src="script/jquery.canvasjs.min.js"></script> 
+
+<link rel="stylesheet" href="stile.css" type="text/css"> </link>
+
+<script type="text/javascript">
+// variabili globali
+var titolo = "Produzione fotovoltaico";
+var titolo1=" ";
+var titolo2=" ";
+var coloreGrafico = "yellowShades";
+
+function aggiorna_dati(){
+    var dt_to = $.datepicker.formatDate('yy-mm-dd', new Date());
+    if ($('#dataI').val()== "") {
+	$('#dataI').val(dt_to); 
+    }
+    if ($('#dataF').val()== "") {
+	$('#dataF').val(dt_to);
+    }
+    
+    $.ajax({
+	// definisco il tipo della chiamata
+	type: "POST",
+	// specifico la URL della risorsa da contattare
+	url: "agg.php",
+	// passo dei dati alla risorsa remota
+	data: "comando=aggiorna&device=tutti",
+	// definisco il formato della risposta
+	dataType: "html",
+	// imposto un'azione per il caso di successo
+	success: function(risposta){
+	    //$("div#risposta").html(risposta);
+	},
+	// ed una per il caso di fallimento
+	error: function(){
+	    //alert("Chiamata fallita!!!");
+	}
+    });
+    CanvasJS.addColorSet("yellowShades",
+	[//colorSet Array Yellow
+	"#BFBF00",
+	"#AFAF00",
+	"#9F9F00",
+	"#8F8F00",
+	"#9F9F00",
+	"#AFAF00"
+	]);
+    CanvasJS.addColorSet("redShades",
+	[//colorSet Array Red
+	"#FF0000",
+	"#EF1000",
+	"#DF2000",
+	"#CF3000",
+	"#DF2000",
+	"#EF1000"
+	]);
+    CanvasJS.addColorSet("bluShades",
+	[//colorSet Array Blu
+	"#1700E8",
+	"#180AC3",
+	"#191A8C",
+	"#202A77",
+	"#191A8C",
+	"#180AC3"
+	]);
+    
+    
+    
+}
+
+/*
+function cambioDev(){
+    var cDev =$('#device').val();
+    alert(cDev);
+    if (cDev == "fotov") {
+	
+	var titolo = "Produzione fotovoltaico";
+	var coloreGrafico = "redShades";
+    }
+    else{
+	var titolo = "Consumo";
+	var coloreGrafico = "redShades";
+    }
+    
+}
+*/
+    
+</script>
+
+
+<script>
+$(function() {
+$( "#dataI" ).datepicker({dateFormat: 'yy-mm-dd'});
+$( "#dataF").datepicker({dateFormat: 'yy-mm-dd'}) ;
+//$('#datePicker').val(new Date().toDateInputValue());
+//$('#datePicker1').val(new Date().toDateInputValue());
+	
+});
+</script>
+<script type="text/javascript">
+      
+    $("document").ready(function(){
+	
+	$(".tasti").click( function(){
+	    $('#form').append('<img src="images/ajax-loader.gif" alt="loading" id="loading" />');
+	    //data = $(this).serialize() + "&" + $.param(data);
+	    $(this).prop("disabled",true);
+	    
+	    var id = "tasto="+$(this).attr('id');
+	    //alert(id);
+	    $.ajax({
+		type: "POST",
+		url: 'backup.php',		
+		data: id,
+		dataType: "htlm",
+		success: function(data){
+		$('#loading').fadeOut(800, function(){
+			$(this).remove();
+		});
+		alert(data);
+		$(this).prop("disabled",false);
+	        //data returned from php
+	       }
+	    });
+	});
+    
+    
+	
+	
+	
+	$(".js-ajax-php").submit(function(){
+	    // var cosaP = document.(cosav);
+	    //var titolo = "Produzione fotovoltaico";
+	    //var coloreGrafico = "yellowShades";
+	    /*
+	    var cDev =$('#device').val();
+	    alert(cDev);
+	    var c2= $("input[name ='cosa']").val();
+	    var form =$('#mainForm');
+	    
+	    var c2 = $('input[name="cosa"]:checked').val();
+	    alert(c2);
+	    
+	    var dett = $('input[name="dett"]:checked').val();
+	    var device = $('#device').val();
+	    var cosa = $('input[name="cosa"]:checked').val();
+	    */
+	    
+	    var dataI = $('#dataI').val();
+	    var dataF = $('#dataF').val();		     
+	    var dett = $('input[name="dett"]:checked').val();
+	    var device =$('#device').val();
+	    var cosa = $('input[name="cosa"]:checked').val();
+	    if (device == 'fotov' ) {
+		var titolo = "Produzione fotovoltaico";
+		var coloreGrafico = "yellowShades";
+	    }
+	    else if (device== 'scambio'){
+		titolo = "Consumo";
+		coloreGrafico = "bluShades";		
+	    }
+	    if (dett == "det") {
+		titolo1 = " ";
+	    }else if (dett == "_gg") {
+		titolo1 = " giornaliero";
+	    }else if (dett == "_mm") {
+		titolo1 = " mensile";
+	    }else if (dett == "_ii") {
+		titolo1 = " istantaneo";
+	    }
+	    if (dett != "det"){
+		if (cosa == 'max5') {
+		    titolo2=" (Max 5 min)";
+		}else if (cosa == 'maxi'){
+		    titolo2=" (Picchi)";
+		}else{
+		    titolo2=" ";
+		}		
+	    }else{
+	    titolo2=" ";
+	    }
+	    
+	    
+	    var data = {};
+	    data = $(this).serialize() + "&" + $.param(data);
+	    //alert(data);
+	    $('#form').append('<img src="images/ajax-loader.gif" alt="loading" id="loading" />');
+	    
+	    
+	    
+	    //var postare = 'dataI='+ $('#dataI').val() +'&dataF='+dataF+ '&dett='+ dett + '&device='+ device;
+	    //{ dataI: dataIp,dataF: dataFp,dett: dettp,device: devicep},
+		
+		//'dataI='+ $('#dataI').val() +'&dataF='+dataF+ '&dett='+ dett + '&device='+ device,
+	    
+		//{ 	dataI: dataI,dataF: dataF,dett: dett,device: device},
+	       
+	    $.ajax({
+		type: "POST",
+		dataType: "json",
+		url: "grafico.php",
+		data: data,
+		success: function(res){
+		    //$('#form').append('<p id="risposta"> + res + </p>');
+		    $('#loading').fadeOut(800, function(){
+			$(this).remove();
+		    
+		    });		     
+		    var data = [];
+		    var dataSeries = { type: "column" };		    
+		    var dataPoints = [];
+		    
+		    
+		    
+		    
+		    
+		    
+		    
+		    dataSeries.dataPoints = res;
+		    data.push(dataSeries);
+   
+		    var options = {
+			zoomEnabled: true,
+			animationEnabled: true,
+			
+			colorSet: coloreGrafico,
+			title: {
+			    text: titolo+titolo1+titolo2
+			},
+			axisX: {
+			    labelAngle: 30
+			},
+			axisY: {
+			    includeZero: false
+			},
+			data: data  
+		    };
+		    $("#chartContainer").CanvasJSChart(options);
+		    //alert("ci sono");
+		    
+		},
+		// ed una per il caso di fallimento
+		error: function(){
+		    $('#loading').fadeOut(800, function(){
+			// alert("errore");
+			$(this).remove();
+			});
+		}
+		
+	    });
+	    
+	   return false;
+	});
+    });
+
+</script>
+
+
+
+
+</head>
+
+<body onLoad="aggiorna_dati();">
+    <div class=box><img src="images/logo_peb.gif" alt="logo" id="logo_pic" /></div>
+  
+    <div class=titolo>PIC & BERRY</div>
+    <div id= "form" class ="selez_data"> 
+	<form action="graficoNo.php" method="post" class ="js-ajax-php" id="form_ajax">
+	    
+	    Da data: <input type="text" name="dataI" id="dataI"/>
+	    a data: <input type="text" name="dataF" id="dataF"/>	   
+	    <select name="device" id="device" >
+		<option value = fotov selected> Fotovoltaico </option>
+		<option value = scambio  >Scambio </option>
+	    </select>
+	    
+	    <div class="selez">    
+		<input type="radio" name="cosa" value="pot" checked="checked"/>Potenza<br>
+		<input type="radio" name="cosa" value="max5" />Massimi(5 min)<br>
+		<input type="radio" name="cosa" value="maxi" />Picchi <br>
+		<!--input type="radio" name="cosa" value="start"/>Ora inizio<br-->
+		<!--input type="radio" name="cosa" value="end"/>Ora fine<br-->
+	    </div>
+	    <div class="selez">    
+		<input type="radio" name="dett" value="det" checked="checked"/>dettagliato <br>
+		<input type="radio" name="dett" value="_gg" />giornaliero<br>
+		<input type="radio" name="dett" value="_mm" />mensile <br>
+		<!--input type="radio" name="dett" value="_ii"/>istantaneo<br-->	
+		<input type="submit" name="OK" value="OK" id="submit" ></td>
+	    </div>
+	    
+	</form>
+    </div>
+    <div id="risposta" style="clear: both"></div>
+    <div id="chartContainer" style="height: 500px; width: 100%;"></div>
+       
+    <div class="esport" hidden = true>
+    	<input type="submit" name="backup" value="Backup" id="backup" class="tasti" >
+	<input type="submit" name="esporta" value="Esporta CSV" id="esporta" class="tasti">
+    </div>
+</body>
+</html>
